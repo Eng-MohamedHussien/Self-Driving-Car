@@ -1,0 +1,109 @@
+**lesson 1**
+-RGB -> red green blue are called colour channels.
+-pixel value ranges from 0 to 255. 
+-0 represents the darkest value and 255 represents the brightest value.
+**color selection code**
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
+# NOTE: Always make a copy of arrays or other variables in Python. If instead, you say "a = b" then all changes you make to "a" will be reflected in "b" as well!
+# Read in the image and print out some stats
+image = mpimg.imread('test.jpg')
+print('This image is: ',type(image), 
+         'with dimensions:', image.shape)
+
+# Grab the x and y size and make a copy of the image
+ysize = image.shape[0]
+xsize = image.shape[1]
+# Note: always make a copy rather than simply using "="
+color_select = np.copy(image)
+# Define our color selection criteria
+# Note: if you run this code, you'll find these are not sensible values!!
+# But you'll get a chance to play with them soon in a quiz
+red_threshold = 0
+green_threshold = 0
+blue_threshold = 0
+rgb_threshold = [red_threshold, green_threshold, blue_threshold]
+Next, I'll select any pixels below the threshold and set them to zero.
+After that, all pixels that meet my color criterion (those above the threshold) will be retained, and those that do not (below the threshold) will be blacked out.
+# Identify pixels below the threshold
+thresholds = (image[:,:,0] < rgb_threshold[0]) \
+            | (image[:,:,1] < rgb_threshold[1]) \
+            | (image[:,:,2] < rgb_threshold[2])
+color_select[thresholds] = [0,0,0]
+
+# Display the image                 
+plt.imshow(color_select)
+plt.show()
+
+in this case, I'll assume that the front facing camera that took the image is mounted in a fixed position on the car, such that the lane lines will always appear 
+in the same general region of the image. Next, I'll take advantage of this by adding a criterion to only consider pixels for color selection in the region 
+where we expect to find the lane lines.
+Check out the code below. The variables left_bottom, right_bottom, and apex represent the vertices of a triangular region that I would like to retain 
+for my color selection, while masking everything else out. Here I'm using a triangular mask to illustrate the simplest case,
+but later you'll use a quadrilateral, and in principle, you could use any polygon.
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
+
+# Read in the image and print some stats
+image = mpimg.imread('test.jpg')
+print('This image is: ', type(image), 
+         'with dimensions:', image.shape)
+
+# Pull out the x and y sizes and make a copy of the image
+ysize = image.shape[0]
+xsize = image.shape[1]
+region_select = np.copy(image)
+
+# Define a triangle region of interest 
+# Keep in mind the origin (x=0, y=0) is in the upper left in image processing
+# Note: if you run this code, you'll find these are not sensible values!!
+# But you'll get a chance to play with them soon in a quiz 
+left_bottom = [0, 539]
+right_bottom = [900, 300]
+apex = [400, 0]
+
+# Fit lines (y=Ax+B) to identify the  3 sided region of interest
+# np.polyfit() returns the coefficients [A, B] of the fit
+fit_left = np.polyfit((left_bottom[0], apex[0]), (left_bottom[1], apex[1]), 1)
+fit_right = np.polyfit((right_bottom[0], apex[0]), (right_bottom[1], apex[1]), 1)
+fit_bottom = np.polyfit((left_bottom[0], right_bottom[0]), (left_bottom[1], right_bottom[1]), 1)
+
+# Find the region inside the lines
+XX, YY = np.meshgrid(np.arange(0, xsize), np.arange(0, ysize))
+region_thresholds = (YY > (XX*fit_left[0] + fit_left[1])) & \
+                    (YY > (XX*fit_right[0] + fit_right[1])) & \
+                    (YY < (XX*fit_bottom[0] + fit_bottom[1]))
+
+# Color pixels red which are inside the region of interest
+region_select[region_thresholds] = [255, 0, 0]
+
+# Display the image
+plt.imshow(region_select)
+
+# uncomment if plot does not display
+# plt.show()
+
+Note! The standard location of the origin (x=0, y=0) for images is in the top left corner with y values increasing downward and x increasing to the right. 
+This might seem weird at first, but if you think about an image as a matrix, it makes sense that the "00" element is in the upper left.
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+image = mpimg.imread('exit-ramp.jpg')
+plt.imshow(image)
+import cv2  #bringing in OpenCV libraries
+gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) #grayscale conversion
+plt.imshow(gray, cmap='gray')
+
+In image space, a line is plotted as x vs. y, but in 1962, Paul Hough devised a method for representing lines in parameter space, which we will call “Hough space”
+in his honor.
+
+In Hough space, I can represent my "x vs. y" line as a point in "m vs. b" instead. The Hough Transform is just the conversion from image space to Hough space.
+So, the characterization of a line in image space will be a single point at the position (m, b) in Hough space.
+
+
+
+
+
+
+
