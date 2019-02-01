@@ -106,4 +106,3 @@ So, the characterization of a line in image space will be a single point at the 
 
 
 
-

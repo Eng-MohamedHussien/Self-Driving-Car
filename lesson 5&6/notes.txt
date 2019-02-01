@@ -1,0 +1,76 @@
+-how much your lane is curving ??
+-correct effect of image distortion .
+-how to undistort your distorted camera images.
+-distortion changes what the shape and the
+size of the objects appears to be.
+-distortion can change the apparent size of
+an object in an image.
+-distortion can change the apparent shape of
+an object in an image.
+-distortion can cause an object's appearance
+to change depending on where it is in the field
+of view.
+-distortion can make objects appear closer
+or father away than they actually are.
+-Types of Distortion
+
+Real cameras use curved lenses to form an image, and light rays often bend a little too much or too little at the edges of these lenses. 
+This creates an effect that distorts the edges of images, so that lines or objects appear more or less curved than they actually are.
+This is called radial distortion, and it’s the most common type of distortion.
+
+Another type of distortion, is tangential distortion. This occurs when a camera’s lens is not aligned perfectly parallel to the imaging plane, 
+where the camera film or sensor is. This makes an image look tilted so that some objects appear farther away or closer than they actually are.
+Distortion Coefficients and Correction
+
+There are three coefficients needed to correct for radial distortion: k1, k2, and k3. To correct the appearance of radially distorted points in an image, one can use a correction formula.
+
+In the following equations, (x, y)(x,y) is a point in a distorted image. To undistort these points, OpenCV calculates r, which is the known distance between a point 
+in an undistorted (corrected) image (x_{corrected}, y_{corrected})(x corrected,y corrected) and the center of the image distortion, 
+which is often the center of that image (x_c, y_c)(xc,yc). This center point (x_c, y_c)(xc,yc) is sometimes referred to as the distortion center. 
+These points are pictured below.
+Note: The distortion coefficient k3 is required to accurately reflect major radial distortion (like in wide angle lenses). However, for minor radial distortion,
+ which most regular camera lenses have, k3 has a value close to or equal to zero and is negligible. So, in OpenCV, you can choose to ignore this coefficient; 
+this is why it appears at the end of the distortion values array: [k1, k2, p1, p2, k3]. In this course, we will use it in all calibration calculations 
+so that our calculations apply to a wider variety of lenses (wider, like wide angle, haha) and can correct for both minor and major radial distortion.
+
+Radial distortion correction.
+There are two more coefficients that account for tangential distortion: p1 and p2, and this distortion can be corrected using a different correction formula.
+
+*pinhole camera images are free from distortion,but lenses tend to introduce image distrotion.
+
+-Self-driving cars need to be told the correct steering angle to turn, left or right. You can calculate this angle if you know a few things about the speed and dynamics of the car and how much the lane is curving.
+
+One way to calculate the curvature of a lane line, is to fit a 2nd degree polynomial to that line, and from this you can easily extract useful information.
+
+For a lane line that is close to vertical, you can fit a line using this formula: f(y) = Ay^2 + By + C, where A, B, and C are coefficients.
+
+A gives you the curvature of the lane line, B gives you the heading or direction that the line is pointing, and C gives you the position of the line based on how far away it is from the very left of an image (y = 0).
+
+Perspective transform
+
+A perspective transform maps the points in a given image to different, desired, image points with a new perspective. 
+The perspective transform you’ll be most interested in is a bird’s-eye view transform that let’s us view a lane from above;
+this will be useful for calculating the lane curvature later on. Aside from creating a bird’s eye view representation of an image, 
+a perspective transform can also be used for all kinds of different view points.
+
+Examples of Useful Code
+
+Compute the perspective transform, M, given source and destination points:
+
+M = cv2.getPerspectiveTransform(src, dst)
+
+Compute the inverse perspective transform:
+
+Minv = cv2.getPerspectiveTransform(dst, src)
+Warp an image using the perspective transform, M:
+
+warped = cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)
+Note: When you apply a perspective transform, choosing four source points manually, as we did in this video, is often not the best option.
+There are many other ways to select source points. For example, many perspective transform algorithms will programmatically detect four source points in an image based on edge or corner detection and analyzing attributes like color and surrounding pixels.
+
+
+Nice work so far! You've learned a lot about how cameras work, the distortions they cause, and how to correct for that distortion. 
+You've also learned about perspective transformation - a great method to help you see a view from a different angle than the original image.
+
+While you'll still be using the earlier concepts later on, we'll be shifting into color and gradient thresholds, a way of determining where certain objects occur in images that have already been undistorted and perspective transformed. 
+From there, you'll learn how to identify the lane lines themselves.
