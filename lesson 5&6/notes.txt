@@ -74,3 +74,13 @@ You've also learned about perspective transformation - a great method to help yo
 
 While you'll still be using the earlier concepts later on, we'll be shifting into color and gradient thresholds, a way of determining where certain objects occur in images that have already been undistorted and perspective transformed. 
 From there, you'll learn how to identify the lane lines themselves.
+
+You need to pass a single color channel to the cv2.Sobel() function, so first convert it to grayscale:
+-Make sure you use the correct grayscale conversion depending on how you've read in your images. 
+Use cv2.COLOR_RGB2GRAY if you've read in an image using mpimg.imread(). Use cv2.COLOR_BGR2GRAY if you've read in an image using cv2.imread().
+Calculate the derivative in the xx direction (the 1, 0 at the end denotes xx direction):
+
+sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0)
+Calculate the derivative in the yy direction (the 0, 1 at the end denotes yy direction):
+
+sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1)
